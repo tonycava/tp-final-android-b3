@@ -13,7 +13,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
 import com.example.myapplication.Utils
 import com.example.myapplication.data.LocalTodoRepository
+import com.example.myapplication.data.RemoteTodoRepository
 import com.example.myapplication.data.local.Database
+import com.example.myapplication.data.remote.FirebaseDatabase
 import com.example.myapplication.databinding.AddTodoFragmentBinding
 import com.example.myapplication.model.Todo
 
@@ -24,8 +26,10 @@ class AddTodoFragment : Fragment() {
 
 	private val viewModel by viewModels<AddTodoViewModel> {
 		val database = Database.getDb(requireContext())
-		val todoRepository = LocalTodoRepository(database)
-		AddTodoViewModelFactory(todoRepository)
+		val localTodoRepository = LocalTodoRepository(database)
+		val remoteDb = FirebaseDatabase.getDatabase()
+		val remoteTodoRepository = RemoteTodoRepository(remoteDb)
+		AddTodoViewModelFactory(localTodoRepository, remoteTodoRepository)
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

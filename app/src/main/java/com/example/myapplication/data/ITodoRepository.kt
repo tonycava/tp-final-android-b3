@@ -9,7 +9,7 @@ interface ITodoRepository {
 	suspend fun getTodos(): List<Todo>
 	suspend fun addTodo(todo: Todo): Todo
 	fun refresh()
-	fun getTodo(id: Long): Todo?
+	suspend fun getTodo(id: Long): Todo?
 	fun removeTodo(todo: Todo): Todo
 	fun completeTodo(todo: Todo): Todo
 	fun updateTodo(newTodo: Todo): Todo

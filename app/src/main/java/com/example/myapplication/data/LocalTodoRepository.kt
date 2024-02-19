@@ -24,7 +24,7 @@ class LocalTodoRepository(private val localDS: ToDoDatabase) : ITodoRepository {
 		return todo
 	}
 
-	override fun getTodo(id: Long): Todo? {
+	override suspend fun getTodo(id: Long): Todo {
 		return Todo(0, "test")
 	}
 
