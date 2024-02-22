@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-
 class RemoteTodoRepository(private val remoteDB: DatabaseReference) : ITodoRepository {
     private val database = remoteDB
     private val todosReference = database.child("todos")

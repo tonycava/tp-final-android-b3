@@ -34,7 +34,6 @@ class AddTodoFragment : Fragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-		addBackListener()
 		setupUI()
 	}
 
@@ -49,29 +48,6 @@ class AddTodoFragment : Fragment() {
 		binding.viewModel = viewModel
 
 		return binding.root
-	}
-
-	private fun addBackListener() {
-		binding.goBackBtn.setOnClickListener {
-			Utils.showExitConfirmationDialog(
-				requireContext(),
-				acceptCallback = {
-					parentFragmentManager.popBackStack()
-				}
-			)
-		}
-
-		val callback = object : OnBackPressedCallback(true) {
-			override fun handleOnBackPressed() {
-				Utils.showExitConfirmationDialog(
-					requireContext(),
-					acceptCallback = {
-						findNavController().navigate(R.id.action_addToDoFragment_to_mainFragment)
-					})
-			}
-		}
-
-		requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 	}
 
 	private fun setupUI() {

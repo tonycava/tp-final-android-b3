@@ -1,6 +1,48 @@
-<!-- item_layout.xml -->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/textView"
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="todo"
+            type="com.example.myapplication.model.Todo" />
+
+        <variable
+            name="viewHolder"
+            type="com.example.myapplication.ui.main.TodoAdapter.ItemViewHolder" />
+
+        <variable
+            name="clickListener"
+            type="com.example.myapplication.ui.main.TodoAdapter.TodoClickListener" />
+
+        <variable
+            name="adapter"
+            type="com.example.myapplication.ui.main.TodoAdapter" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp" />
+        android:layout_height="match_parent"
+        android:onClick="@{() -> clickListener.onClick(todo, viewHolder, adapter)}">
+
+        <CheckBox
+            android:id="@+id/checkBox2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

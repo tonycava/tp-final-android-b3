@@ -26,6 +26,22 @@ class MainViewModel(private val localRepository: ITodoRepository, private val re
 		}
 	}
 
+	fun toggleCompleted(todo: Todo): Boolean {
+		todo.completed = !todo.completed
+		ioScope.launch {
+			remoteRepository.completeTodo(todo)
+			localRepository.updateTodo(todo)
+		}
+		return todo.completed
+	}
+
+	fun deleteTodo(todo: Todo) {
+		ioScope.launch {
+			localRepository.removeTodo(todo)
+			remoteRepository.removeTodo(todo)
+		}
+	}
+
 	override fun onCleared() {
 		super.onCleared()
 		viewModelJob.cancel()

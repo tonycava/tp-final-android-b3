@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mainFragment"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/title_home" />
+
+    <item
+        android:id="@+id/addToDoFragment"
+        android:icon="@drawable/list_solid"
+        android:title="@string/title_todo" />
+
+    <item
+        android:id="@+id/aboutUsFragment"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="@string/title_about_us" />
+</menu>

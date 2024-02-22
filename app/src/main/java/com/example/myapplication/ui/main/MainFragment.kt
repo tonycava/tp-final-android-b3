@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
@@ -19,90 +19,123 @@ import com.example.myapplication.data.local.Database
 import com.example.myapplication.data.remote.FirebaseDatabase
 import com.example.myapplication.databinding.MainFragmentBinding
 import com.example.myapplication.model.Todo
+import com.google.android.material.snackbar.Snackbar
 
 class MainFragment : Fragment() {
-	private var _binding: MainFragmentBinding? = null
-	private val binding get() = _binding!!
+    private var _binding: MainFragmentBinding? = null
+    private val binding get() = _binding!!
 
-	private lateinit var adapter: TodoAdapter
-	private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: TodoAdapter
+    private lateinit var recyclerView: RecyclerView
 
-	private val viewModel by viewModels<MainViewModel> {
-		val remoteDb = FirebaseDatabase.getDatabase()
-		val database = Database.getDb(requireContext())
-		val localTodoRepository = LocalTodoRepository(database)
-		val todosReference = remoteDb.child("todos")
-		val remoteTodoRepository = RemoteTodoRepository(todosReference)
-		Log.d("MainFragment", remoteTodoRepository.toString())
-		MainViewModelFactory(localTodoRepository, remoteTodoRepository)
-	}
+    private val viewModel by viewModels<MainViewModel> {
+        val remoteDb = FirebaseDatabase.getDatabase()
+        val database = Database.getDb(requireContext())
+        val localTodoRepository = LocalTodoRepository(database)
+        val todosReference = remoteDb.child("todos")
+        val remoteTodoRepository = RemoteTodoRepository(todosReference)
+        Log.d("MainFragment", remoteTodoRepository.toString())
+        MainViewModelFactory(localTodoRepository, remoteTodoRepository)
+    }
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
+    private val todoClickListener = TodoAdapter.TodoClickListener { todo, viewHolder, adapter ->
+        Snackbar.make(
+            binding.root,
+            "Clicked on '${todo.text}' (status: ${!todo.completed})",
+            Snackbar.LENGTH_LONG
+        ).show()
+        viewModel.todos.value
+            ?.get(viewHolder.adapterPosition)
+            ?.completed = viewModel.toggleCompleted(todo)
+        adapter.notifyItemChanged(viewHolder.layoutPosition)
+    }
 
-		Log.d("MainFragment", "onViewCreated")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-		setUI()
-		observeTodos()
-	}
+        Log.d("MainFragment", "onViewCreated")
 
-	private fun observeTodos() {
-		viewModel.todos.observe(viewLifecycleOwner) { todos ->
-			adapter.submitList(todos)
-			updateRecyclerViewPadding(todos.isNotEmpty())
-		}
-	}
 
-	override fun onCreateView(
-		inflater: LayoutInflater,
-		container: ViewGroup?,
-		savedInstanceState: Bundle?
-	): View {
-		_binding = DataBindingUtil.inflate(inflater, R.layout.main_fragment, container, false)
+        setUI()
+        observeTodos()
+    }
 
-		binding.lifecycleOwner = this
-		binding.viewModel = viewModel
+    private fun observeTodos() {
+        viewModel.todos.observe(viewLifecycleOwner) { todos ->
+            adapter.submitList(todos)
+            updateRecyclerViewPadding(todos.isNotEmpty())
+        }
+    }
 
-		recyclerView = binding.recyclerView
 
-		Log.d("MainFragment", "hereeeeeeeeeeeeeeeeeeeeee")
 
-		return binding.root
-	}
+    private fun setupTodoListAdapter(recyclerView: RecyclerView) {
 
-	private fun setUI() {
-		viewModel.fragmentRefresh();
-		binding.navigateToTodoPage.setOnClickListener {
-			findNavController().navigate(R.id.action_mainFragment_to_addToDoFragment)
-		}
+        val adapter = TodoAdapter(WORDS_COMPARATOR, todoClickListener)
 
-		adapter = TodoAdapter(WORDS_COMPARATOR)
-		recyclerView.adapter = adapter
-		recyclerView.layoutManager = LinearLayoutManager(requireContext())
-	}
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int, position: Int) {
+                val todo = adapter.getItemAt(viewHolder.adapterPosition)
+                todo?.let {
+                    viewModel.deleteTodo(it)
+                }
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+        recyclerView.adapter = adapter
+    }
 
-	private fun updateRecyclerViewPadding(hasItems: Boolean) {
-		val padding =
-			if (hasItems) R.dimen.recycler_view_padding_with_items else R.dimen.recycler_view_padding_without_items
-		val paddingValue = resources.getDimensionPixelSize(padding)
-		recyclerView.setPadding(paddingValue, paddingValue, paddingValue, paddingValue)
-	}
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = DataBindingUtil.inflate(inflater, R.layout.main_fragment, container, false)
 
-	override fun onDestroyView() {
-		super.onDestroyView()
-		_binding = null
-	}
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
 
-	companion object {
-		private val WORDS_COMPARATOR = object : DiffUtil.ItemCallback<Todo>() {
-			override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
-				return oldItem === newItem
-			}
+        recyclerView = binding.recyclerView
 
-			override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
-				return oldItem.text == newItem.text
-			}
-		}
-	}
+        setupTodoListAdapter(recyclerView)
+
+        Log.d("MainFragment", "hereeeeeeeeeeeeeeeeeeeeee")
+
+        return binding.root
+    }
+
+    private fun setUI() {
+        viewModel.fragmentRefresh();
+
+
+        adapter = TodoAdapter(WORDS_COMPARATOR, todoClickListener)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    private fun updateRecyclerViewPadding(hasItems: Boolean) {
+        val padding =
+            if (hasItems) R.dimen.recycler_view_padding_with_items else R.dimen.recycler_view_padding_without_items
+        val paddingValue = resources.getDimensionPixelSize(padding)
+        recyclerView.setPadding(paddingValue, paddingValue, paddingValue, paddingValue)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    companion object {
+        private val WORDS_COMPARATOR = object : DiffUtil.ItemCallback<Todo>() {
+            override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
+                return oldItem === newItem
+            }
+
+            override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
+                return oldItem.text == newItem.text
+            }
+        }
+    }
 }
 

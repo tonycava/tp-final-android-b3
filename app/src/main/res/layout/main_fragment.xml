@@ -38,17 +38,5 @@
                 android:layout_marginTop="24dp"
                 app:layout_constraintTop_toBottomOf="@+id/Tittle" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/navigateToTodoPage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                app:srcCompat="@android:drawable/ic_input_add"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="@string/go_to_add_todo_page" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

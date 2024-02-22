@@ -22,4 +22,10 @@
                 android:id="@+id/action_addToDoFragment_to_mainFragment"
                 app:destination="@id/mainFragment" />
     </fragment>
+    <fragment
+            android:id="@+id/aboutUsFragment"
+            android:name="com.example.myapplication.ui.about.AboutUsFragment"
+            android:label="AboutUsFragment" >
+    </fragment>
+
 </navigation>
