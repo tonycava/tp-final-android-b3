@@ -2,9 +2,20 @@ package com.example.myapplication
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.Paint
+import com.example.myapplication.model.Todo
 
 class Utils {
 	companion object {
+
+		fun getPaintFlags(todo: Todo): Int {
+			return if (todo.completed) {
+				Paint.STRIKE_THRU_TEXT_FLAG
+			} else {
+				0
+			}
+		}
+
 		inline fun showExitConfirmationDialog(
 			context: Context,
 			crossinline acceptCallback: () -> Unit = {},

@@ -2,7 +2,6 @@ package com.example.myapplication.ui.add
 
 import androidx.lifecycle.ViewModel
 import com.example.myapplication.data.ITodoRepository
-import com.example.myapplication.data.LocalTodoRepository
 import com.example.myapplication.model.Todo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

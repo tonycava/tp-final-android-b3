@@ -20,26 +20,25 @@ class LocalTodoRepository(private val localDS: ToDoDatabase) : ITodoRepository {
 
 	override suspend fun addTodo(todo: Todo): Todo {
 		localDS.toDoDao().insert(todo)
-		refresh()
 		return todo
 	}
 
-	override suspend fun getTodo(id: Long): Todo {
-		return Todo(0, "test")
+	override suspend fun getTodo(id: Long): Todo? {
+		return localDS.toDoDao().get(id)
 	}
 
 	override fun removeTodo(todo: Todo): Todo {
-
-		return Todo(0, "test")
+		localDS.toDoDao().delete(todo)
+		return todo
 	}
 
 	override fun completeTodo(todo: Todo): Todo {
-		return Todo(0, "test")
+		localDS.toDoDao().update(todo)
+		return todo
 	}
 
 	override fun updateTodo(newTodo: Todo): Todo {
-		// val index = todos.indexOfFirst { t -> t.id == newTodo.id }
-		// todos[index] = newTodo
-		return Todo(0, "test")
+		localDS.toDoDao().update(newTodo)
+		return newTodo
 	}
 }

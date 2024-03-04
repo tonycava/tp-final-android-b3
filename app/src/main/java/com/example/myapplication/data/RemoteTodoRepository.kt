@@ -16,63 +16,61 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class RemoteTodoRepository(private val remoteDB: DatabaseReference) : ITodoRepository {
-    private val database = remoteDB
-    private val todosReference = database.child("todos")
-    override val todos: MutableLiveData<List<Todo>> = MutableLiveData(mutableListOf())
+	private val database = remoteDB
+	private val todosReference = database.child("todos")
+	override val todos: MutableLiveData<List<Todo>> = MutableLiveData(mutableListOf())
 
-    override suspend fun getTodos(): List<Todo> {
-        val todos = todosReference.get().await()
-        return todos.getValue<List<Todo>>() ?: emptyList()
-    }
+	override suspend fun getTodos(): List<Todo> {
+		val todos = todosReference.get().await()
+		return todos.getValue<List<Todo>>() ?: emptyList()
+	}
 
-    override suspend fun addTodo(todo: Todo): Todo {
-        database.child("todos").child(todo.id.toString()).setValue(todo)
-        return todo
-    }
+	override suspend fun addTodo(todo: Todo): Todo {
+		database.child("todos").child(todo.id.toString()).setValue(todo)
+		return todo
+	}
 
-    override fun refresh() {
-        database.get().addOnSuccessListener { dataSnapshot ->
-            if (dataSnapshot.exists()) {
-                val data = dataSnapshot.value as HashMap<*, *>
-                val todosList = data.values.mapNotNull { item ->
-                    (item as? HashMap<*, *>)?.let { todo ->
-                        Todo(
-                            todo["id"] as Long,
-                            todo["text"] as String,
-                            todo["completed"] as Boolean,
-                            todo["createdAt"] as Long
-                        )
-                    }
-                }.toList().sortedByDescending { it.createdAt }
-                todos.postValue(todosList)
-            } else {
-                Log.d(TAG, "No such document")
-            }
-        }.addOnFailureListener { exception ->
-            Log.d(TAG, "get failed with ", exception)
-        }
-    }
+	override fun refresh() {
+		database.get().addOnSuccessListener { dataSnapshot ->
+			if (dataSnapshot.exists()) {
+				val data = dataSnapshot.value as HashMap<*, *>
+				val todosList = data.values.mapNotNull { item ->
+					(item as? HashMap<*, *>)?.let { todo ->
+						Todo(
+							todo["id"] as Long,
+							todo["text"] as String,
+							todo["completed"] as Boolean,
+							todo["createdAt"] as Long
+						)
+					}
+				}.toList().sortedByDescending { it.createdAt }
+				todos.postValue(todosList)
+			} else {
+				Log.d(TAG, "No such document")
+			}
+		}.addOnFailureListener { exception ->
+			Log.d(TAG, "get failed with ", exception)
+		}
+	}
 
-    override suspend fun getTodo(id: Long): Todo? {
-        val todo = todosReference.child(id.toString()).get().await()
-        return todo.getValue<Todo>()
-    }
+	override suspend fun getTodo(id: Long): Todo? {
+		val todo = todosReference.child(id.toString()).get().await()
+		return todo.getValue<Todo>()
+	}
 
-    override fun removeTodo(todo: Todo): Todo {
-        todosReference.child(todo.id.toString()).removeValue()
-        return todo
-    }
+	override fun removeTodo(todo: Todo): Todo {
+		database.child(todo.id.toString()).setValue(null)
+		return todo
+	}
 
-    override fun completeTodo(todo: Todo): Todo {
-        val childUpdates = HashMap<String, Any>()
-        childUpdates["completed"] = true
-        todosReference.child(todo.id.toString()).updateChildren(childUpdates)
-        return todo
-    }
+	override fun completeTodo(todo: Todo): Todo {
+		database.child(todo.id.toString()).child("completed").setValue(todo.completed)
+		return todo
+	}
 
-    override fun updateTodo(newTodo: Todo): Todo {
-        todosReference.child(newTodo.id.toString()).setValue(newTodo)
-        return newTodo
-    }
+	override fun updateTodo(newTodo: Todo): Todo {
+		todosReference.child(newTodo.id.toString()).setValue(newTodo)
+		return newTodo
+	}
 
 }

@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,111 +18,97 @@ import com.example.myapplication.data.local.Database
 import com.example.myapplication.data.remote.FirebaseDatabase
 import com.example.myapplication.databinding.MainFragmentBinding
 import com.example.myapplication.model.Todo
-import com.google.android.material.snackbar.Snackbar
 
 class MainFragment : Fragment() {
-    private var _binding: MainFragmentBinding? = null
-    private val binding get() = _binding!!
+	private var _binding: MainFragmentBinding? = null
+	private val binding get() = _binding!!
 
-    private lateinit var adapter: TodoAdapter
-    private lateinit var recyclerView: RecyclerView
+	private lateinit var adapter: TodoAdapter
+	private lateinit var recyclerView: RecyclerView
 
-    private val viewModel by viewModels<MainViewModel> {
-        val remoteDb = FirebaseDatabase.getDatabase()
-        val database = Database.getDb(requireContext())
-        val localTodoRepository = LocalTodoRepository(database)
-        val todosReference = remoteDb.child("todos")
-        val remoteTodoRepository = RemoteTodoRepository(todosReference)
-        Log.d("MainFragment", remoteTodoRepository.toString())
-        MainViewModelFactory(localTodoRepository, remoteTodoRepository)
-    }
+	private val viewModel by viewModels<MainViewModel> {
+		val remoteDb = FirebaseDatabase.getDatabase()
+		val database = Database.getDb(requireContext())
+		val localTodoRepository = LocalTodoRepository(database)
+		val todosReference = remoteDb.child("todos")
+		val remoteTodoRepository = RemoteTodoRepository(todosReference)
+		MainViewModelFactory(localTodoRepository, remoteTodoRepository)
+	}
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
 
-        Log.d("MainFragment", "onViewCreated")
+		setUI()
+		setupTodoListAdapter()
+		observeTodos()
+	}
 
-
-        setUI()
-        observeTodos()
-    }
-
-    private fun observeTodos() {
-        viewModel.todos.observe(viewLifecycleOwner) { todos ->
-            adapter.submitList(todos)
-            updateRecyclerViewPadding(todos.isNotEmpty())
-        }
-    }
+	private fun observeTodos() {
+		viewModel.todos.observe(viewLifecycleOwner) { todos ->
+			adapter.submitList(todos)
+			updateRecyclerViewPadding(todos.isNotEmpty())
+		}
+	}
 
 
+	private fun setupTodoListAdapter() {
+		val swipeHandler = object : SwipeToDeleteCallback() {
+			override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int, position: Int) {
+				val todo = adapter.currentList[position]
+				viewModel.deleteTodo(todo)
+				viewModel.fragmentRefresh()
+			}
+		}
 
-    private fun setupTodoListAdapter(recyclerView: RecyclerView) {
+		val itemTouchHelper = ItemTouchHelper(swipeHandler)
+		itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        val adapter = TodoAdapter(WORDS_COMPARATOR, viewModel)
+	}
 
-        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int, position: Int) {
-                val todo = adapter.getItemAt(viewHolder.adapterPosition)
-                todo?.let {
-                    viewModel.deleteTodo(it)
-                }
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(swipeHandler)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-        recyclerView.adapter = adapter
-    }
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View {
+		_binding = DataBindingUtil.inflate(inflater, R.layout.main_fragment, container, false)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = DataBindingUtil.inflate(inflater, R.layout.main_fragment, container, false)
+		binding.lifecycleOwner = this
+		binding.viewModel = viewModel
 
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
+		recyclerView = binding.recyclerView
 
-        recyclerView = binding.recyclerView
+		return binding.root
+	}
 
-        setupTodoListAdapter(recyclerView)
+	private fun setUI() {
+		viewModel.fragmentRefresh();
+		adapter = TodoAdapter(WORDS_COMPARATOR, viewModel)
+		recyclerView.adapter = adapter
+		recyclerView.layoutManager = LinearLayoutManager(requireContext())
+	}
 
-        Log.d("MainFragment", "hereeeeeeeeeeeeeeeeeeeeee")
+	private fun updateRecyclerViewPadding(hasItems: Boolean) {
+		val padding =
+			if (hasItems) R.dimen.recycler_view_padding_with_items else R.dimen.recycler_view_padding_without_items
+		val paddingValue = resources.getDimensionPixelSize(padding)
+		recyclerView.setPadding(paddingValue, paddingValue, paddingValue, paddingValue)
+	}
 
-        return binding.root
-    }
+	override fun onDestroyView() {
+		super.onDestroyView()
+		_binding = null
+	}
 
-    private fun setUI() {
-        viewModel.fragmentRefresh();
+	companion object {
+		private val WORDS_COMPARATOR = object : DiffUtil.ItemCallback<Todo>() {
+			override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
+				return oldItem === newItem
+			}
 
-
-        adapter = TodoAdapter(WORDS_COMPARATOR, viewModel)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-    }
-
-    private fun updateRecyclerViewPadding(hasItems: Boolean) {
-        val padding =
-            if (hasItems) R.dimen.recycler_view_padding_with_items else R.dimen.recycler_view_padding_without_items
-        val paddingValue = resources.getDimensionPixelSize(padding)
-        recyclerView.setPadding(paddingValue, paddingValue, paddingValue, paddingValue)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    companion object {
-        private val WORDS_COMPARATOR = object : DiffUtil.ItemCallback<Todo>() {
-            override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
-                return oldItem === newItem
-            }
-
-            override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
-                return oldItem.text == newItem.text
-            }
-        }
-    }
+			override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
+				return oldItem.text == newItem.text
+			}
+		}
+	}
 }
 

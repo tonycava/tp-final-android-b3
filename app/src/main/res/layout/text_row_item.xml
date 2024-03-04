@@ -28,7 +28,7 @@
         android:onClick="@{() -> clickListener.onClick(todo, viewHolder, adapter)}">
 
         <CheckBox
-            android:id="@+id/checkBox2"
+            android:id="@+id/checkBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
@@ -36,12 +36,13 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textSize="14sp" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

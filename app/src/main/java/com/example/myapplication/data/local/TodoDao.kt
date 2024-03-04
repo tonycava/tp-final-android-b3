@@ -8,6 +8,9 @@ interface ToDoDao {
 	@Query("SELECT * FROM todo ORDER BY created_at DESC")
 	fun getAll(): List<Todo>
 
+	@Query("SELECT * FROM todo WHERE id = :id")
+	fun get(id: Long): Todo?
+
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	fun insert(todo: Todo)
 

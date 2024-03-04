@@ -6,15 +6,14 @@ import com.example.myapplication.model.Todo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val localRepository: ITodoRepository, private val remoteRepository: ITodoRepository) : ViewModel() {
 	private val viewModelJob = Job()
 	private val ioScope = CoroutineScope(Dispatchers.IO + viewModelJob)
 
-	val todos = remoteRepository.todos
+	val todos = localRepository.todos
+
 	init {
 		fragmentRefresh()
 	}
@@ -26,20 +25,20 @@ class MainViewModel(private val localRepository: ITodoRepository, private val re
 		}
 	}
 
-	fun toggleCompleted(todo: Todo): Boolean {
+	fun toggleCompleted(todo: Todo) {
 		todo.completed = !todo.completed
 		ioScope.launch {
 			remoteRepository.completeTodo(todo)
 			localRepository.updateTodo(todo)
 		}
-		return todo.completed
 	}
 
-	fun deleteTodo(todo: Todo) {
+	fun deleteTodo(todo: Todo): Todo {
 		ioScope.launch {
 			localRepository.removeTodo(todo)
 			remoteRepository.removeTodo(todo)
 		}
+		return todo
 	}
 
 	override fun onCleared() {
