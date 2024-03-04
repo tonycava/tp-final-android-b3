@@ -1,5 +1,5 @@
 Liste des fonctionnalités implémentées :<br>
-[ ] Utilisation de l'Api Preference<br>
+[X] Utilisation de l'Api Preference<br>
 [ ] Ecriture/lecture dans un Fichier, usage de InputStream ou OutputStream<br>
 [X] Utilisation de SQLite<br>
 [X] Utilisation de Room<br>

@@ -12,7 +12,7 @@ class MainViewModel(private val localRepository: ITodoRepository, private val re
 	private val viewModelJob = Job()
 	private val ioScope = CoroutineScope(Dispatchers.IO + viewModelJob)
 
-	val todos = localRepository.todos
+	val todos = remoteRepository.todos
 
 	init {
 		fragmentRefresh()

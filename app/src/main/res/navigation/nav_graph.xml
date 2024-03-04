@@ -23,9 +23,9 @@
                 app:destination="@id/mainFragment" />
     </fragment>
     <fragment
-            android:id="@+id/aboutUsFragment"
-            android:name="com.example.myapplication.ui.about.AboutUsFragment"
-            android:label="AboutUsFragment" >
+            android:id="@+id/settingsFragment"
+            android:name="com.example.myapplication.ui.about.SettingsFragment"
+            android:label="SettingsFragment" >
     </fragment>
 
 </navigation>
