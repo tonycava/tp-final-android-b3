@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+
 class RemoteTodoRepository(private val remoteDB: DatabaseReference) : ITodoRepository {
     private val database = remoteDB
     private val todosReference = database.child("todos")
@@ -30,11 +31,11 @@ class RemoteTodoRepository(private val remoteDB: DatabaseReference) : ITodoRepos
     }
 
     override fun refresh() {
-        database.get().addOnSuccessListener {dataSnapshot ->
+        database.get().addOnSuccessListener { dataSnapshot ->
             if (dataSnapshot.exists()) {
                 val data = dataSnapshot.value as HashMap<*, *>
-                val todosList = data.values.mapNotNull {item ->
-                    (item as? HashMap<*, *>)?.let {todo ->
+                val todosList = data.values.mapNotNull { item ->
+                    (item as? HashMap<*, *>)?.let { todo ->
                         Todo(
                             todo["id"] as Long,
                             todo["text"] as String,
@@ -63,9 +64,10 @@ class RemoteTodoRepository(private val remoteDB: DatabaseReference) : ITodoRepos
     }
 
     override fun completeTodo(todo: Todo): Todo {
-        val newTodo = todo.copy(completed = true)
-        todosReference.child(todo.id.toString()).setValue(newTodo)
-        return newTodo
+        val childUpdates = HashMap<String, Any>()
+        childUpdates["completed"] = true
+        todosReference.child(todo.id.toString()).updateChildren(childUpdates)
+        return todo
     }
 
     override fun updateTodo(newTodo: Todo): Todo {

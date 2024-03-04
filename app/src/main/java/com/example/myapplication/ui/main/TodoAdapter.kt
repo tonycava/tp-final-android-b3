@@ -14,17 +14,25 @@ import com.example.myapplication.model.Todo
 import com.example.myapplication.ui.main.TodoAdapter.ItemViewHolder
 import com.example.myapplication.databinding.TextRowItemBinding
 
-class TodoAdapter(private val diffCallback: DiffUtil.ItemCallback<Todo>) :
+class TodoAdapter(
+    private val diffCallback: DiffUtil.ItemCallback<Todo>,
+    private val viewModel: MainViewModel
+) :
     ListAdapter<Todo, ItemViewHolder>(diffCallback) {
 
-    class ItemViewHolder(private val binding: TextRowItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        val textView: TextView = itemView.findViewById(R.id.textView)
-        private val checkBox: CheckBox = itemView.findViewById(R.id.checkBox2)
+    class ItemViewHolder(
+        private val binding: TextRowItemBinding,
+        private val viewModel: MainViewModel
+    ) : RecyclerView.ViewHolder(binding.root) {
+        private val textView: TextView = itemView.findViewById(R.id.textView)
 
-        fun bind(text: String?) {
+        fun bind(text: String?, todo: Todo?) {
             textView.text = text
-            checkBox.setOnClickListener {
-                viewModel.toggleCompleted()
+            binding.todo = todo
+            binding.checkBox2.setOnCheckedChangeListener { _, _ ->
+                if (todo != null) {
+                    viewModel.toggleCompleted(todo)
+                }
             }
             binding.viewHolder = this
 
@@ -38,24 +46,16 @@ class TodoAdapter(private val diffCallback: DiffUtil.ItemCallback<Todo>) :
         }
 
         companion object {
-            fun create(parent: ViewGroup): ItemViewHolder {
-                val view: View = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.text_row_item, parent, false)
-                return ItemViewHolder(TextRowItemBinding.bind(view))
+            fun create(parent: ViewGroup, viewModel: MainViewModel): ItemViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = TextRowItemBinding.inflate(layoutInflater, parent, false)
+                return ItemViewHolder(binding, viewModel)
             }
         }
     }
 
     fun getItemAt(position: Int): Todo? {
         return getItem(position)
-    }
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        return ItemViewHolder.create(parent)
-    }
-
-    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val item = itemList[position]
-        holder.textView.text = item.text
     }
 
     class TodoClickListener(
@@ -69,10 +69,22 @@ class TodoAdapter(private val diffCallback: DiffUtil.ItemCallback<Todo>) :
         ) = clickListener(task, viewHolder, adapter)
     }
 
-    @BindingAdapter("checkedState")
-    fun CheckBox.setChecked(todo: Todo?) {
-        todo?.let {
-            this.isChecked = it.completed
+    companion object {
+        @JvmStatic
+        @BindingAdapter("checkedState")
+        fun CheckBox.setChecked(todo: Todo?) {
+            todo?.let {
+                this.isChecked = it.completed
+            }
         }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+        return ItemViewHolder.create(parent, viewModel)
+    }
+
+    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+        val current = getItem(position)
+        holder.bind(current.text, current)
     }
 }

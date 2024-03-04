@@ -38,18 +38,6 @@ class MainFragment : Fragment() {
         MainViewModelFactory(localTodoRepository, remoteTodoRepository)
     }
 
-    private val todoClickListener = TodoAdapter.TodoClickListener { todo, viewHolder, adapter ->
-        Snackbar.make(
-            binding.root,
-            "Clicked on '${todo.text}' (status: ${!todo.completed})",
-            Snackbar.LENGTH_LONG
-        ).show()
-        viewModel.todos.value
-            ?.get(viewHolder.adapterPosition)
-            ?.completed = viewModel.toggleCompleted(todo)
-        adapter.notifyItemChanged(viewHolder.layoutPosition)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -71,7 +59,7 @@ class MainFragment : Fragment() {
 
     private fun setupTodoListAdapter(recyclerView: RecyclerView) {
 
-        val adapter = TodoAdapter(WORDS_COMPARATOR, todoClickListener)
+        val adapter = TodoAdapter(WORDS_COMPARATOR, viewModel)
 
         val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int, position: Int) {
@@ -109,7 +97,7 @@ class MainFragment : Fragment() {
         viewModel.fragmentRefresh();
 
 
-        adapter = TodoAdapter(WORDS_COMPARATOR, todoClickListener)
+        adapter = TodoAdapter(WORDS_COMPARATOR, viewModel)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
     }
