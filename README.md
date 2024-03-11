@@ -9,7 +9,7 @@ Liste des fonctionnalités implémentées :<br>
 [X] L'affichage d'une liste avec son adapter<br>
 [X] L'affichage d'une liste avec un custom adapter (avec gestion d’événement)<br>
 [-] La pertinence d'utilisation des layouts (L'application doit être responsive et supporter: portrait/paysage et tablette)<br>
-[-] L'utilisation de d’événement améliorant l'ux (pex: swipe). Préciser :<br>
+[X] L'utilisation de d’événement améliorant l'ux (pex: swipe). Préciser : Swipe to delete<br>
 [ ] La réalisation de composant graphique custom (Paint 2D, Calendrier,...) Préciser :<br>
 [X] Les taches en background (codage du démarrage d'un thread)<br>
 [X] Le codage d'un menu (contextuel ou non, utilisation d'un menu en resource XML)<br>

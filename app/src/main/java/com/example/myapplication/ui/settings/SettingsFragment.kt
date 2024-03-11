@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.about
+package com.example.myapplication.ui.settings
 
 import android.content.Context
 import android.content.res.Configuration
@@ -9,7 +9,10 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.fragment.findNavController
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.example.myapplication.R
 import com.example.myapplication.databinding.SettingsFragmentBinding
+import com.example.myapplication.ui.calendar.CustomCalendarView
+import java.util.Calendar
 
 class SettingsFragment : Fragment() {
 
@@ -27,6 +30,12 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val calendarView = view.findViewById<CustomCalendarView>(R.id.customCalendarView)
+
+        // Définissez la date à afficher dans le calendrier, par exemple, la date actuelle
+        val currentDate = Calendar.getInstance().time
+        calendarView.setDate(currentDate)
 
         val sharedPreferences = requireActivity().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val isDarkMode = sharedPreferences.getBoolean("darkMode", isDarkModeOn())

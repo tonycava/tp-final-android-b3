@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.main
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,6 +42,7 @@ class MainFragment : Fragment() {
 		setUI()
 		setupTodoListAdapter()
 		observeTodos()
+		updateRecyclerViewBackgroundColor()
 	}
 
 	private fun observeTodos() {
@@ -110,5 +112,21 @@ class MainFragment : Fragment() {
 			}
 		}
 	}
+
+	private fun updateRecyclerViewBackgroundColor() {
+		val recyclerViewBackgroundResId = if (isDarkModeOn()) {
+			R.color.black
+		} else {
+			R.color.white
+		}
+
+		recyclerView.setBackgroundResource(recyclerViewBackgroundResId)
+	}
+
+	private fun isDarkModeOn(): Boolean {
+		val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+		return currentNightMode == Configuration.UI_MODE_NIGHT_YES
+	}
 }
+
 

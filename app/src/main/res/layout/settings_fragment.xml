@@ -20,10 +20,29 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="Dark Mode"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Change theme"
+        app:layout_constraintBottom_toTopOf="@+id/customCalendarView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.example.myapplication.ui.calendar.CustomCalendarView
+        android:id="@+id/customCalendarView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backButton" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date du jour :"
+        app:layout_constraintBottom_toTopOf="@+id/customCalendarView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/darkModeSwitch" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
